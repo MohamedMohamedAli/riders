@@ -7,11 +7,17 @@ $(document).ready(function() {
 $("#list").click(function() {
     completati();
     nonCompletati();
+    aggiornaTabelle();
 
 });
 
 function aggiornaTabelle() {
-    setTimeout(function() {}, 1000);
+    setTimeout(function() {
+        console.log("aggiorno");
+        completati();
+        nonCompletati();
+        aggiornaTabelle();
+    }, 20000);
 }
 
 function completati() {
@@ -85,11 +91,14 @@ function cambiaStato(id) {
         dataType: "json",
         success: function(data, status, xhr) {
             console.log("result modifica: " + data);
+            completati();
+            nonCompletati();
         },
         error: function() {
             console.log("errore");
         }
     });
+
 }
 
 
