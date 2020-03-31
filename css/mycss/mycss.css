@@ -1,0 +1,23 @@
+.my-div {
+    background-color: rgb(255, 146, 107);
+    padding: 50px;
+    border-radius: 20px;
+    width: 1000px;
+    margin: auto;
+}
+
+.my-div2 {
+    background-color: rgb(70, 206, 100);
+    padding: 50px;
+    border-radius: 20px;
+    width: 1000px;
+    margin: auto;
+}
+
+.my-btn {
+    border-radius: 10px;
+    background-color: rgb(70, 206, 100);
+    color: black;
+    padding: 5px 5px;
+    font-size: 20px;
+}
