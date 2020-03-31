@@ -1,14 +1,17 @@
 $(document).ready(function() {
     completi = 0;
     incompleti = 0;
+    aggiorna = true;
 });
 
 
 $("#list").click(function() {
     completati();
     nonCompletati();
-    aggiornaTabelle();
-
+    if (aggiorna) {
+        aggiornaTabelle();
+    }
+    aggiorna = false;
 });
 
 function aggiornaTabelle() {
@@ -29,7 +32,6 @@ function completati() {
         success: function(data, status, xhr) {
             svuotaTabella(completi, "tabella2");
             completi = data;
-            console.log(completi.length);
             mostraLista(completi, "tabella2");
         },
         error: function() {
@@ -47,7 +49,6 @@ function nonCompletati() {
         success: function(data, status, xhr) {
             svuotaTabella(incompleti, "tabella1");
             incompleti = data;
-            console.log(incompleti.length);
             mostraLista(incompleti, "tabella1");
         },
         error: function() {
@@ -64,8 +65,6 @@ function mostraLista(list, idTabella) {
         var cell1 = row.insertCell();
         var cell2 = row.insertCell();
         var cell3 = row.insertCell();
-        console.log(list[i]);
-        console.log(list[i]["_id"]);
         cell1.innerHTML = list[i]["_id"];
         cell2.innerHTML = list[i].merce;
 
@@ -83,14 +82,12 @@ function mostraLista(list, idTabella) {
 
 
 function cambiaStato(id) {
-    console.log("cambio stato: " + id);
     $.ajax({
         url: "http://212.237.32.76:3002/start/" + id,
         type: "GET",
         contentType: "application/json",
         dataType: "json",
         success: function(data, status, xhr) {
-            console.log("result modifica: " + data);
             completati();
             nonCompletati();
         },
@@ -105,7 +102,6 @@ function cambiaStato(id) {
 
 
 function svuotaTabella(list, idTabella) {
-    console.log("svuoto " + idTabella + ": " + list.length);
     var tabella = document.getElementById(idTabella);
     for (var i = 0; i < list.length; i++) {
         tabella.deleteRow(-1);
