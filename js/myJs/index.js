@@ -82,6 +82,7 @@ function mostraLista(list, idTabella) {
                 cell5.style.color = "rgb(2, 0, 126)";
             } else {
                 cell3.innerHTML = "<b>" + "Riding" + "</b>";
+                cell5.innerHTML = '<img src="css/mygif/loading.gif" />';
             }
         }
     }
