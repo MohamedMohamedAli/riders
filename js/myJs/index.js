@@ -2,24 +2,36 @@ $(document).ready(function() {
     completi = 0;
     incompleti = 0;
     aggiorna = true;
+    stopAggiornamento = false;
 });
 
 
 $("#list").click(function() {
     completati();
     nonCompletati();
+    stopAggiornamento = false;
     if (aggiorna) {
         aggiornaTabelle();
     }
     aggiorna = false;
 });
+$("#home").click(function() {
+    console.log("fermo aggiornamenti");
+    stopAggiornamento = true;
+    aggiorna = true;
+    svuotaTabella(incompleti, "tabella1");
+    svuotaTabella(completi, "tabella2");
+});
 
 function aggiornaTabelle() {
+    console.log("stop aggiornametno: " + stopAggiornamento);
     setTimeout(function() {
-        console.log("aggiorno");
-        completati();
-        nonCompletati();
-        aggiornaTabelle();
+        if (!stopAggiornamento) {
+            console.log("aggiorno");
+            completati();
+            nonCompletati();
+            aggiornaTabelle();
+        }
     }, 20000);
 }
 
@@ -60,7 +72,6 @@ function nonCompletati() {
 
 function mostraLista(list, idTabella) {
     for (var i = 0; i < list.length; i++) {
-        console.log(list[i]);
         var tabella = document.getElementById(idTabella);
         var row = tabella.insertRow();
         var cell1 = row.insertCell();
@@ -70,7 +81,7 @@ function mostraLista(list, idTabella) {
         cell2.innerHTML = list[i].merce;
 
         if (idTabella == "tabella1") {
-            cell3.innerHTML = "<button class=\"my-btn\" onclick=\"cambiaStato('" + list[i]["_id"] + "')\"><b>RIDE</b></button> ";
+            cell3.innerHTML = "<button class=\"my-btn\" id=\"" + list[i]["_id"] + "\"><b>RIDE</b></button> ";
         } else {
             var cell4 = row.insertCell();
             var cell5 = row.insertCell();
@@ -89,7 +100,8 @@ function mostraLista(list, idTabella) {
 }
 
 
-function cambiaStato(id) {
+$("#tabella1").on("click", ".my-btn", function() {
+    var id = this.id;
     $.ajax({
         url: "http://212.237.32.76:3002/start/" + id,
         type: "GET",
@@ -104,12 +116,11 @@ function cambiaStato(id) {
         }
     });
 
-}
+});
 
 function formatDate(date) {
     var myDate = new Date(date);
     var x = (myDate + "").split(" ");
-    console.log("data: " + x);
     var result = x[4] + "-" + x[1] + x[2];
     return result;
 }

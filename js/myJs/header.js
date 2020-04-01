@@ -1,6 +1,6 @@
 document.write('\
 <nav class="navbar navbar-expand-lg navbar-light " style="background-color: black; position:fixed; width:100%;z-index:10;" >\
-	<a class="navbar-brand" href="index.html" style="color:rgb(255, 230, 0)">Riders</a>\
+<button class="my-btnRider" type="button" id="home">Riders</button>\
 </nav>\
 <h1 style="color:white">-</h1>\
  \
