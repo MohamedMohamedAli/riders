@@ -3,7 +3,13 @@
 
 <head>
 
-    <script src="js/myJs/header.js"></script>
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.bundle.js"></script>
+    <script src="js/jqueryUI/jquery-ui.min.js"></script>
+    <script src="js/moment.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/mycss/mycss.css" rel="stylesheet">
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
     <title>Index</title>
@@ -14,16 +20,17 @@
 
 
     <br>
-
-    <label class="my-label">Created / In Progress:<button class="my-btnList" type="button" id="list">List</button></label>
+    <button class="btn btn-secondary btn-lg btn-block" type="button" style="width:50%; margin:auto; color:rgb(255, 230, 0) ;" id="home">Home</button>
+    <button class="btn btn-secondary btn-lg btn-block" type="button" style="width:50%; margin:auto; color:rgb(255, 230, 0) ;" id="list">List</button>
+    <label class="my-label">Created / In Progress:</label>
     <div id="div1" class="my-div">
-        <table id="tabella1" style="width: 500px;">
+        <table id="tabellaNonCompletati" class="table table-borderless">
         </table>
     </div>
     <br><br>
     <label class="my-label">Delivered:</label>
     <div class="my-div2">
-        <table id="tabella2" style="width: 900px;">
+        <table id="tabellaCompletati" class="table table-borderless">
         </table>
     </div>
 </body>
