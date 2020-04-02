@@ -24,22 +24,40 @@
     <button class="btn btn-secondary btn-lg btn-block" type="button" style="width:50%; margin:auto; color:rgb(255, 230, 0) ;" id="home">Home</button>
     <button class="btn btn-secondary btn-lg btn-block" type="button" style="width:50%; margin:auto; color:rgb(255, 230, 0) ;" id="list">List</button>
     <br>
-    <p class="my-label">Created / In Progress</p>
-    <div id="div1" class="my-div">
-        <table id="tabellaNonCompletati" class="table table-borderless">
-        </table>
+
+    <div class="card bg-warning mb-3 pos-div">
+        <div class="card-header">
+            <p class="my-text"><b>Created / In Progress</b></p>
+        </div>
+        <div class="card-body">
+            <table id="tabellaNonCompletati" class="table table-borderless">
+            </table>
+        </div>
     </div>
     <br><br>
-    <p class="my-label">Delivered</p>
-    <div class="my-div2">
-        <table id="tabellaCompletati" class="table table-borderless">
-        </table>
-        <nav aria-label="Page navigation">
+    <div class="card bg-success mb-3 pos-div">
+        <div class="card-header">
+            <p class="my-text"><b>Delivered</b></p>
+        </div>
+        <div class="card-body">
+            <table id="tabellaCompletati" class="table table-borderless">
+            </table>
+        </div>
+
+        <div class="btn-group dropright" id="campoDropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" style="width:50%; margin:auto;color:rgb(255, 230, 0)" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Riders In Pagina<spin id="quantita">[10]</spin>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu2" id="dropdownOption" style="background-color:rgb(82, 82, 82); width: 20px;">
+            </div>
+        </div>
+
+        <nav aria-label="Page navigation" id="campoImpaginazione">
             <ul class="pagination" id="pagination" style="display: flex; justify-content: center;"></ul>
         </nav>
+
     </div>
 </body>
-
 <script src="js/myJs/index.js"></script>
 
 </html>

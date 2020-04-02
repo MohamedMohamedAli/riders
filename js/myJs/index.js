@@ -1,17 +1,23 @@
 $(document).ready(function() {
     completi = 0;
     incompleti = 0;
+    numeroPagine = 0;
+    elementiMostrati = 10;
+    indexPartenzaTabella = 0;
+    paginaAttuale = 1;
     aggiorna = true;
     stopAggiornamento = false;
     $("#home").hide();
-    paginaTabella = 0;
+    $("#campoDropdown").hide();
     $("#pagination").hide();
+    creaPulsanti();
 });
 
 $("#list").click(function() {
     $("#list").hide();
     $("#home").show();
     $("#pagination").show();
+    $("#campoDropdown").show();
     completati();
     nonCompletati();
     stopAggiornamento = false;
@@ -21,9 +27,10 @@ $("#list").click(function() {
     aggiorna = false;
 });
 $("#home").click(function() {
-    $("#pagination").hide();
-    $("#home").hide();
     $("#list").show();
+    $("#home").hide();
+    $("#pagination").hide();
+    $("#campoDropdown").hide();
     stopAggiornamento = true;
     aggiorna = true;
     $("#tabellaNonCompletati").empty();
@@ -40,8 +47,31 @@ function aggiornaTabelle() {
     }, 20000);
 }
 
+function quantitaElementiMostrati() {
+    $(".dropdown-item").click(function() {
+        $("#quantita").html("[" + this.id + "]");
+        elementiMostrati = this.id;
+        numeroPagine = Math.ceil(completi.length / elementiMostrati);
+        if (numeroPagine < paginaAttuale) {
+            paginaAttuale = numeroPagine;
+        }
+        indexPartenzaTabella = (paginaAttuale - 1) * elementiMostrati;
+        completati();
+        nonCompletati();
+    });
+}
+
+function creaPulsanti() {
+    $('.dropdown-toggle').dropdown();
+    var button = "";
+    $.each(new Array(20), function(i) {
+        button += '<button class="dropdown-item" type="button" id="' + ((i + 1) * 5) + '"style="color:rgb(255, 230, 0)">' + ((i + 1) * 5) + '</button>';
+    });
+    $("#dropdownOption").append(button);
+    quantitaElementiMostrati();
+}
+
 function completati() {
-    console.log("vado su completati");
     $.ajax({
         url: " http://212.237.32.76:3002/status",
         type: "GET",
@@ -50,7 +80,9 @@ function completati() {
         success: function(data, status, xhr) {
             $("#tabellaCompletati").empty();
             completi = data;
-            mostraLista(completi, "tabellaCompletati"); //richiama Ride
+            tabellaCompletati();
+            numeroPagine = Math.ceil(completi.length / elementiMostrati);
+            impaginazione();
         },
         error: function() {
             console.log("errore");
@@ -67,7 +99,7 @@ function nonCompletati() {
         success: function(data, status, xhr) {
             $("#tabellaNonCompletati").empty();
             incompleti = data;
-            mostraLista(incompleti, "tabellaNonCompletati");
+            tabellaNonCompletati();
         },
         error: function() {
             console.log("errore");
@@ -75,66 +107,74 @@ function nonCompletati() {
     });
 }
 
-function mostraLista(list, idTabella) {
-    if (idTabella == "tabellaCompletati") {
-        console.log("mostra tabella completati");
-        list = ordinaPerData(list);
-        numeroPagine = Math.ceil(list.length / 10);
-        list.forEach(function(element, i) {
-            if ((paginaTabella + i) >= list.length || i >= 10) {
-                return false;
+function tabellaCompletati() {
+    completi = ordinaPerData();
+
+    completi.forEach(function(element, i) {
+        if ((indexPartenzaTabella + i) >= completi.length || i >= elementiMostrati) {
+            return false;
+        }
+        var riga = "";
+        riga += ("<tr>");
+        riga += ("<td>" + completi[indexPartenzaTabella + i]["_id"] + "</td>");
+        riga += ("<td>" + completi[indexPartenzaTabella + i]["merce"] + "</td>");
+        if (completi[indexPartenzaTabella + i]["status"] == "CONSEGNATO") {
+            riga += ("<td><b>OK</b></td>");
+            riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + moment(completi[indexPartenzaTabella + i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>");
+            riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + moment(completi[indexPartenzaTabella + i]["endDate"]).format('H:mm:ss-MMMDD') + "]</td>");
+        } else {
+            riga += ("<td><b>Riding</b></td>");
+            riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + moment(completi[indexPartenzaTabella + i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>");
+            riga += ("<td><img src=\"css/mygif/loading.gif\" /></td>");
+        }
+        riga += ("</tr>");
+        $("#tabellaCompletati").append(riga);
+    });
+
+
+}
+
+function tabellaNonCompletati() {
+    incompleti.forEach(function(element, i) {
+        var riga = "";
+        riga += ("<tr>");
+        riga += ("<td>" + element["_id"] + "</td>");
+        riga += ("<td>" + element["merce"] + "</td>");
+        riga += ("<td> <button class=\"btn btn-success\" style=\"color:black\" id=\"" + element["_id"] + "\"><b>RIDE</b></button> </td>");
+        riga += ("</tr>");
+        $("#tabellaNonCompletati").append(riga);
+    });
+    mettiInRide();
+}
+
+function impaginazione() {
+    $("#campoImpaginazione").html("");
+    $("#campoImpaginazione").append('<ul class="pagination" id="pagination" style="display: flex; justify-content: center;"></ul>');
+    $(function() {
+        $('#pagination').twbsPagination({
+            totalPages: numeroPagine,
+            visiblePages: 5,
+            initiateStartPageClick: false,
+            startPage: paginaAttuale,
+            onPageClick: function(event, page) {
+                $("#tabellaCompletati").empty();
+                paginaAttuale = page;
+                indexPartenzaTabella = (paginaAttuale - 1) * elementiMostrati;
+                tabellaCompletati();
             }
-            var riga = "";
-            riga += ("<tr>");
-            riga += ("<td>" + list[paginaTabella + i]["_id"] + "</td>");
-            riga += ("<td>" + list[paginaTabella + i]["merce"] + "</td>");
-            if (list[paginaTabella + i]["status"] == "CONSEGNATO") {
-                riga += ("<td><b>OK</b></td>");
-                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + moment(list[paginaTabella + i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>");
-                riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + moment(list[paginaTabella + i]["endDate"]).format('H:mm:ss-MMMDD') + "]</td>");
-            } else {
-                riga += ("<td><b>Riding</b></td>");
-                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + moment(list[paginaTabella + i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>");
-                riga += ("<td><img src=\"css/mygif/loading.gif\" /></td>");
-            }
-            riga += ("</tr>");
-            $("#tabellaCompletati").append(riga);
-        });
-        $(function() {
-            window.pagObj = $('#pagination').twbsPagination({
-                totalPages: numeroPagine,
-                visiblePages: 5,
-                initiateStartPageClick: false,
-                onPageClick: function(event, page) {
-                    $("#tabellaCompletati").empty();
-                    paginaTabella = (page - 1) * 10;
-                    console.log("cambio pag");
-                    mostraLista(completi, "tabellaCompletati");
-                }
-            })
-        });
-    } else {
-        console.log("mostra tabella non completati");
-        list.forEach(function(element, i) {
-            var riga = "";
-            riga += ("<tr>");
-            riga += ("<td>" + element["_id"] + "</td>");
-            riga += ("<td>" + element["merce"] + "</td>");
-            riga += ("<td> <button class=\"btn btn-success\" style=\"color:black\" id=\"" + element["_id"] + "\"><b>RIDE</b></button> </td>");
-            riga += ("</tr>");
-            $("#tabellaNonCompletati").append(riga);
-        });
-    }
+        })
+    });
+}
+
+function mettiInRide() {
     $(".btn-success").click(function() {
         var id = this.id;
-        console.log("id :" + id);
         $.ajax({
             url: "http://212.237.32.76:3002/start/" + id,
             type: "GET",
             contentType: "application/json",
             dataType: "json",
             success: function(data, status, xhr) {
-                console.log("sucesso ride");
                 completati();
                 nonCompletati();
             },
@@ -145,21 +185,7 @@ function mostraLista(list, idTabella) {
     });
 }
 
-function ordinaPerData(list) {
-    var orderList = [];
-    //object --> array
-    list.forEach(function(element, i) {
-        orderList.push(Object.entries(element));
-    });
-    //ordina
-    orderList.sort(function(a, b) {
-        return (moment(b[3][1]) - moment(a[3][1]))
-    });
-    //array --> object
-    orderList.forEach(function(element, i) {
-        element.forEach(function(element2) {
-            list[i][element2[0]] = element2[1];
-        });
-    });
-    return list;
+function ordinaPerData() {
+    completi.sort(function(a, b) { return (moment(b.startDate) - moment(a.startDate)) });
+    return completi;
 }
