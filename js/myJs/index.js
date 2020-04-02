@@ -24,7 +24,6 @@ $("#home").click(function() {
     $("#pagination").hide();
     $("#home").hide();
     $("#list").show();
-    console.log("fermo aggiornamenti");
     stopAggiornamento = true;
     aggiorna = true;
     $("#tabellaNonCompletati").empty();
@@ -32,10 +31,8 @@ $("#home").click(function() {
 });
 
 function aggiornaTabelle() {
-    console.log("stop aggiornametno: " + stopAggiornamento);
     setTimeout(function() {
         if (!stopAggiornamento) {
-            console.log("aggiorno");
             completati();
             nonCompletati();
             aggiornaTabelle();
@@ -44,6 +41,7 @@ function aggiornaTabelle() {
 }
 
 function completati() {
+    console.log("vado su completati");
     $.ajax({
         url: " http://212.237.32.76:3002/status",
         type: "GET",
@@ -52,7 +50,7 @@ function completati() {
         success: function(data, status, xhr) {
             $("#tabellaCompletati").empty();
             completi = data;
-            mostraLista(completi, "tabellaCompletati");
+            mostraLista(completi, "tabellaCompletati"); //richiama Ride
         },
         error: function() {
             console.log("errore");
@@ -79,10 +77,9 @@ function nonCompletati() {
 
 function mostraLista(list, idTabella) {
     if (idTabella == "tabellaCompletati") {
+        console.log("mostra tabella completati");
         list = ordinaPerData(list);
-        //setto il numero di pagine 
         numeroPagine = Math.ceil(list.length / 10);
-        //setto il num max di elementi sulla pagina 
         list.forEach(function(element, i) {
             if ((paginaTabella + i) >= list.length || i >= 10) {
                 return false;
@@ -106,18 +103,18 @@ function mostraLista(list, idTabella) {
         $(function() {
             window.pagObj = $('#pagination').twbsPagination({
                 totalPages: numeroPagine,
-                visiblePages: 3,
+                visiblePages: 5,
+                initiateStartPageClick: false,
                 onPageClick: function(event, page) {
                     $("#tabellaCompletati").empty();
                     paginaTabella = (page - 1) * 10;
                     console.log("cambio pag");
                     mostraLista(completi, "tabellaCompletati");
                 }
-            }).on('page', function(event, page) {
-                console.info(page + ' (from event listening)');
-            });
+            })
         });
     } else {
+        console.log("mostra tabella non completati");
         list.forEach(function(element, i) {
             var riga = "";
             riga += ("<tr>");
@@ -128,15 +125,16 @@ function mostraLista(list, idTabella) {
             $("#tabellaNonCompletati").append(riga);
         });
     }
-
     $(".btn-success").click(function() {
         var id = this.id;
+        console.log("id :" + id);
         $.ajax({
             url: "http://212.237.32.76:3002/start/" + id,
             type: "GET",
             contentType: "application/json",
             dataType: "json",
             success: function(data, status, xhr) {
+                console.log("sucesso ride");
                 completati();
                 nonCompletati();
             },
@@ -144,9 +142,7 @@ function mostraLista(list, idTabella) {
                 console.log("errore");
             }
         });
-
     });
-
 }
 
 function ordinaPerData(list) {
