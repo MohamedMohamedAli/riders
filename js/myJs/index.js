@@ -4,6 +4,7 @@ $(document).ready(function() {
     aggiorna = true;
     stopAggiornamento = false;
     $("#home").hide();
+    paginaTabella = 0;
 });
 
 $("#list").click(function() {
@@ -76,34 +77,40 @@ function nonCompletati() {
 function mostraLista(list, idTabella) {
     if (idTabella == "tabellaCompletati") {
         list = ordinaPerData(list);
-    }
-    list.forEach(function(element) {
-
-        var tabella = document.getElementById(idTabella);
-        var row = tabella.insertRow();
-        var cell1 = row.insertCell();
-        var cell2 = row.insertCell();
-        var cell3 = row.insertCell();
-        cell1.innerHTML = element["_id"];
-        cell2.innerHTML = element.merce;
-
-        if (idTabella == "tabellaNonCompletati") {
-            cell3.innerHTML = "<button class=\"btn btn-success\" style=\"color:black\" id=\"" + element["_id"] + "\"><b>RIDE</b></button> ";
-        } else {
-            var cell4 = row.insertCell();
-            var cell5 = row.insertCell();
-            cell4.innerHTML = "[" + formatDate(element["startDate"]) + "]";
-            cell4.style.color = "rgb(126, 0, 0)";
-            if (element.status == "CONSEGNATO") {
-                cell3.innerHTML = "<b>" + "OK" + "</b>";
-                cell5.innerHTML = "[" + formatDate(element["endDate"]) + "]";
-                cell5.style.color = "rgb(2, 0, 126)";
-            } else {
-                cell3.innerHTML = "<b>" + "Riding" + "</b>";
-                cell5.innerHTML = '<img src="css/mygif/loading.gif" />';
+        //setto il numero di pagine 
+        numeroPagine = Math.ceil(list.length / 10);
+        //setto il num max di elementi sulla pagina 
+        list.forEach(function(element, i) {
+            if ((paginaTabella + i) >= list.length || i >= 10) {
+                return false;
             }
-        }
-    });
+            var riga = "";
+            riga += ("<tr>");
+            riga += ("<td>" + list[paginaTabella + i]["_id"] + "</td>");
+            riga += ("<td>" + list[paginaTabella + i]["merce"] + "</td>");
+            if (list[paginaTabella + i]["status"] == "CONSEGNATO") {
+                riga += ("<td><b>OK</b></td>");
+                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + formatDate(list[paginaTabella + i]["startDate"]) + "]</td>");
+                riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + formatDate(list[paginaTabella + i]["endDate"]) + "]</td>");
+            } else {
+                riga += ("<td><b>Riding</b></td>");
+                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + formatDate(list[paginaTabella + i]["startDate"]) + "]</td>");
+                riga += ("<td><img src=\"css/mygif/loading.gif\" /></td>");
+            }
+            riga += ("</tr>");
+            $("#tabellaCompletati").append(riga);
+        });
+    } else {
+        list.forEach(function(element, i) {
+            var riga = "";
+            riga += ("<tr>");
+            riga += ("<td>" + element["_id"] + "</td>");
+            riga += ("<td>" + element["merce"] + "</td>");
+            riga += ("<td> <button class=\"btn btn-success\" style=\"color:black\" id=\"" + element["_id"] + "\"><b>RIDE</b></button> </td>");
+            riga += ("</tr>");
+            $("#tabellaNonCompletati").append(riga);
+        });
+    }
 
     $(".btn-success").click(function() {
         var id = this.id;
@@ -122,7 +129,23 @@ function mostraLista(list, idTabella) {
         });
 
     });
+    $(function() {
+        window.pagObj = $('#pagination').twbsPagination({
+            totalPages: numeroPagine,
+            visiblePages: 3,
+            onPageClick: function(event, page) {
+                $("#tabellaCompletati").empty();
+                paginaTabella = (page - 1) * 10;
+                console.log("cambio pag");
+                mostraLista(completi, "tabellaCompletati");
+            }
+        }).on('page', function(event, page) {
+            console.info(page + ' (from event listening)');
+        });
+    });
 }
+
+
 
 function ordinaPerData(list) {
     var orderList = [];
