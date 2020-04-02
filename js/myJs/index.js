@@ -5,11 +5,13 @@ $(document).ready(function() {
     stopAggiornamento = false;
     $("#home").hide();
     paginaTabella = 0;
+    $("#pagination").hide();
 });
 
 $("#list").click(function() {
     $("#list").hide();
     $("#home").show();
+    $("#pagination").show();
     completati();
     nonCompletati();
     stopAggiornamento = false;
@@ -19,6 +21,7 @@ $("#list").click(function() {
     aggiorna = false;
 });
 $("#home").click(function() {
+    $("#pagination").hide();
     $("#home").hide();
     $("#list").show();
     console.log("fermo aggiornamenti");
@@ -90,15 +93,29 @@ function mostraLista(list, idTabella) {
             riga += ("<td>" + list[paginaTabella + i]["merce"] + "</td>");
             if (list[paginaTabella + i]["status"] == "CONSEGNATO") {
                 riga += ("<td><b>OK</b></td>");
-                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + formatDate(list[paginaTabella + i]["startDate"]) + "]</td>");
-                riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + formatDate(list[paginaTabella + i]["endDate"]) + "]</td>");
+                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + moment(list[paginaTabella + i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>");
+                riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + moment(list[paginaTabella + i]["endDate"]).format('H:mm:ss-MMMDD') + "]</td>");
             } else {
                 riga += ("<td><b>Riding</b></td>");
-                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + formatDate(list[paginaTabella + i]["startDate"]) + "]</td>");
+                riga += ("<td style=\"color:rgb(126, 0, 0)\">[" + moment(list[paginaTabella + i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>");
                 riga += ("<td><img src=\"css/mygif/loading.gif\" /></td>");
             }
             riga += ("</tr>");
             $("#tabellaCompletati").append(riga);
+        });
+        $(function() {
+            window.pagObj = $('#pagination').twbsPagination({
+                totalPages: numeroPagine,
+                visiblePages: 3,
+                onPageClick: function(event, page) {
+                    $("#tabellaCompletati").empty();
+                    paginaTabella = (page - 1) * 10;
+                    console.log("cambio pag");
+                    mostraLista(completi, "tabellaCompletati");
+                }
+            }).on('page', function(event, page) {
+                console.info(page + ' (from event listening)');
+            });
         });
     } else {
         list.forEach(function(element, i) {
@@ -129,23 +146,8 @@ function mostraLista(list, idTabella) {
         });
 
     });
-    $(function() {
-        window.pagObj = $('#pagination').twbsPagination({
-            totalPages: numeroPagine,
-            visiblePages: 3,
-            onPageClick: function(event, page) {
-                $("#tabellaCompletati").empty();
-                paginaTabella = (page - 1) * 10;
-                console.log("cambio pag");
-                mostraLista(completi, "tabellaCompletati");
-            }
-        }).on('page', function(event, page) {
-            console.info(page + ' (from event listening)');
-        });
-    });
+
 }
-
-
 
 function ordinaPerData(list) {
     var orderList = [];
@@ -164,11 +166,4 @@ function ordinaPerData(list) {
         });
     });
     return list;
-}
-
-function formatDate(date) {
-    var myDate = new Date(date);
-    var x = (myDate + "").split(" ");
-    var result = x[4] + "-" + x[1] + x[2];
-    return result;
 }
