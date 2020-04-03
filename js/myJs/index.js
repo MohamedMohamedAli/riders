@@ -8,16 +8,18 @@ $(document).ready(function() {
     aggiorna = true;
     stopAggiornamento = false;
     $("#home").hide();
-    $("#campoDropdown").hide();
+    $("#textSelect").hide();
+    $("#selectQuantita").hide();
     $("#pagination").hide();
-    creaPulsanti();
+    creaOption();
 });
 
 $("#list").click(function() {
     $("#list").hide();
     $("#home").show();
     $("#pagination").show();
-    $("#campoDropdown").show();
+    $("#textSelect").show();
+    $("#selectQuantita").show();
     caricamentoCambioPagina(true);
     completati();
     nonCompletati();
@@ -31,7 +33,8 @@ $("#home").click(function() {
     $("#list").show();
     $("#home").hide();
     $("#pagination").hide();
-    $("#campoDropdown").hide();
+    $("#textSelect").hide();
+    $("#selectQuantita").hide();
     stopAggiornamento = true;
     aggiorna = true;
     caricamentoCambioPagina(true);
@@ -51,9 +54,8 @@ function aggiornaTabelle() {
 }
 
 function quantitaElementiMostrati() {
-    $(".dropdown-item").click(function() {
-        $("#quantita").html("[" + this.id + "]");
-        elementiMostrati = this.id;
+    $("#selectQuantita").change(function() {
+        elementiMostrati = $("#selectQuantita").val();
         numeroPagine = Math.ceil(completi.length / elementiMostrati);
         if (numeroPagine < paginaAttuale) {
             paginaAttuale = numeroPagine;
@@ -64,13 +66,14 @@ function quantitaElementiMostrati() {
     });
 }
 
-function creaPulsanti() {
-    $('.dropdown-toggle').dropdown();
-    var button = "";
+function creaOption() {
+    $('#selectQuantita').change();
+    var option = "";
     $.each(new Array(20), function(i) {
-        button += '<button class="dropdown-item" type="button" id="' + ((i + 1) * 5) + '"style="color:rgb(255, 230, 0)">' + ((i + 1) * 5) + '</button>';
+        option += '<option value="' + ((i + 1) * 5) + '">' + ((i + 1) * 5) + '</option>';
     });
-    $("#dropdownOption").append(button);
+    $("#selectQuantita").append(option);
+    $("#selectQuantita").val(elementiMostrati);
     quantitaElementiMostrati();
 }
 
@@ -154,8 +157,7 @@ function tabellaNonCompletati() {
 }
 
 function impaginazione() {
-    $("#campoImpaginazione").html("");
-    $("#campoImpaginazione").append('<ul class="pagination" id="pagination" style="display: flex; justify-content: center;"></ul>');
+    $("#campoImpaginazione").html('<ul class="pagination" id="pagination" style="display: flex; justify-content: center;"></ul>');
     $(function() {
         $('#pagination').twbsPagination({
             totalPages: numeroPagine,
