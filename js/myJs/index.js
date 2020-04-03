@@ -18,6 +18,7 @@ $("#list").click(function() {
     $("#home").show();
     $("#pagination").show();
     $("#campoDropdown").show();
+    caricamentoCambioPagina(true);
     completati();
     nonCompletati();
     stopAggiornamento = false;
@@ -33,8 +34,10 @@ $("#home").click(function() {
     $("#campoDropdown").hide();
     stopAggiornamento = true;
     aggiorna = true;
+    caricamentoCambioPagina(true);
     $("#tabellaNonCompletati").empty();
     $("#tabellaCompletati").empty();
+    caricamentoCambioPagina(false, 250);
 });
 
 function aggiornaTabelle() {
@@ -83,6 +86,9 @@ function completati() {
             tabellaCompletati();
             numeroPagine = Math.ceil(completi.length / elementiMostrati);
             impaginazione();
+            setTimeout(function() {
+                caricamentoCambioPagina(false, 250);
+            }, 250);
         },
         error: function() {
             console.log("errore");
