@@ -1,3 +1,12 @@
+const ordineDataSu = "&#128070 PARTENZA&#128070";
+const ordineDataGiu = "&#128071 PARTENZA&#128071";
+const ordineDataNeutro = "&#128073 PARTENZA&#128072";
+const ordineMerceSu = "&#128070 MERCE&#128070";
+const ordineMerceGiu = "&#128071 MERCE&#128071";
+const ordineMerceNeutro = "&#128073 MERCE&#128072";
+const crescente = 1;
+const decrescente = -1;
+
 $(document).ready(function() {
     completi = 0;
     incompleti = 0;
@@ -5,14 +14,8 @@ $(document).ready(function() {
     elementiMostrati = 10;
     indexPartenzaTabella = 0;
     ordinaDecrescente = true;
-    frecciaSu = "&#128070";
-    frecciaGiu = "&#128071";
-    frecciaDestra = "&#128073";
-    frecciaSinistra = "&#128072";
-    frecciaDestraData = "&#128072";
-    frecciaSinistraData = "&#128073";
-    frecciaDestraMerce = "&#128072";
-    frecciaSinistraMerce = "&#128073";
+    headerTabellaData = ordineDataNeutro;
+    headerTabellaMerce = ordineMerceNeutro;
     paginaAttuale = 1;
     aggiorna = true;
     stopAggiornamento = false;
@@ -76,19 +79,19 @@ function tabellaCompletati() {
     switch (tipoDiOrdinamento) {
         case "DATA_CRESCENTE":
             console.log("case: DATA_CRESCENTE");
-            ordinaPerDataCrescente();
+            ordinaPerData(crescente);
             break;
         case "DATA_DECRESCENTE":
             console.log("case: DATA_DECRESCENTE");
-            ordinaPerDataDecrescente();
+            ordinaPerData(decrescente);
             break;
         case "MERCE_CRESCENTE":
             console.log("case: MERCE_CRESCENTE");
-            ordinaPerMerceCrescente();
+            ordinaPerMerce(crescente);
             break;
         case "MERCE_DECRESCENTE":
             console.log("case: MERCE_DECRESCENTE");
-            ordinaPerMerceDecrescente();
+            ordinaPerMerce(decrescente);
     }
     completi.forEach(function(element, i) {
         if ((indexPartenzaTabella + i) >= completi.length || i >= elementiMostrati) {
@@ -113,9 +116,9 @@ function tabellaNonCompletati() {
 function headTabellaCompletati() {
     var head = "<tr style=\"background-color:rgba(0, 0, 0, 0.200)\">";
     head += "<th>ID</th>";
-    head += "<th id=\"headMerce\">" + frecciaSinistraMerce + " MERCE" + frecciaDestraMerce + "</th>";
+    head += "<th id=\"headMerce\">" + headerTabellaMerce + "</th>";
     head += "<th>STATO</th>";
-    head += "<th id=\"headData\">" + frecciaSinistraData + " PARTENZA" + frecciaDestraData + "</th>";
+    head += "<th id=\"headData\">" + headerTabellaData + "</th>";
     head += "<th>CONSEGNA</th>";
     head += "</tr>";
     return head;
@@ -162,6 +165,7 @@ function bodyTabellaNonCompletati(i) {
 
 //CARICA DATI PER LE TABELLE {
 function completati() {
+    console.log("entro completati");
     $.ajax({
         url: " http://212.237.32.76:3002/status",
         type: "GET",
@@ -265,70 +269,30 @@ function mettiInRide() {
 }
 
 //ORDINAMENTO TABELLA
-
-function ordinaPerDataDecrescente() {
-    console.log("Data Decrescente");
-    completi.sort(function(a, b) { return (moment(b.startDate) - moment(a.startDate)) });
-    $("#headData").html(frecciaSu + " PARTENZA" + frecciaSu);
-    $("#headMerce").html(frecciaDestra + " MERCE" + frecciaSinistra);
-    assegnoValoreFrecce(frecciaSu, frecciaSu, frecciaDestra, frecciaSinistra);
-    tipoDiOrdinamento = "DATA_DECRESCENTE";
-}
-
-function ordinaPerDataCrescente() {
+function ordinaPerData(i) {
     console.log("Data Crescente");
-    completi.sort(function(a, b) { return (moment(a.startDate) - moment(b.startDate)) });
-    $("#headData").html(frecciaGiu + " PARTENZA" + frecciaGiu);
-    $("#headMerce").html(frecciaDestra + " MERCE" + frecciaSinistra);
-    assegnoValoreFrecce(frecciaGiu, frecciaGiu, frecciaDestra, frecciaSinistra);
-    tipoDiOrdinamento = "DATA_CRESCENTE";
+    completi.sort(function(a, b) { return (moment(a.startDate) - moment(b.startDate)) * i });
 }
 
-function ordinaPerMerceDecrescente() {
-    console.log("Merce Decrescente");
-    completi.sort(function(a, b) {
-        if (b.merce[0] > a.merce[0]) {
-            return 1;
-        }
-        return -1;
-    });
-    console.log("posiziono freccia su merce");
-    $("#headMerce").html(frecciaSu + " MERCE" + frecciaSu);
-    $("#headData").html(frecciaDestra + " PARTENZA" + frecciaSinistra);
-    assegnoValoreFrecce(frecciaDestra, frecciaSinistra, frecciaSu, frecciaSu);
-    tipoDiOrdinamento = "MERCE_DECRESCENTE";
-}
-
-function ordinaPerMerceCrescente() {
+function ordinaPerMerce(i) {
     console.log("Merce Crescente");
     completi.sort(function(a, b) {
         if (b.merce[0] > a.merce[0]) {
-            return -1;
+            return -1 * i;
         }
-        return 1;
+        return 1 * i;
     });
-    $("#headMerce").html(frecciaGiu + " MERCE" + frecciaGiu);
-    $("#headData").html(frecciaDestra + " PARTENZA" + frecciaSinistra);
-    assegnoValoreFrecce(frecciaDestra, frecciaSinistra, frecciaGiu, frecciaGiu);
-    tipoDiOrdinamento = "MERCE_CRESCENTE";
-}
-
-function assegnoValoreFrecce(frecciaSinistraDataInput, frecciaDestraDataInput, frecciaSinistraMerceInput, frecciaDestraMerceInput) {
-    frecciaDestraData = frecciaDestraDataInput;
-    frecciaSinistraData = frecciaSinistraDataInput;
-    frecciaDestraMerce = frecciaDestraMerceInput;
-    frecciaSinistraMerce = frecciaSinistraMerceInput;
 }
 
 function alternareOrdineMerce() {
     $("#headMerce").click(function() {
         if (ordinaDecrescente) {
-            ordinaPerMerceDecrescente();
+            setDati(ordineDataNeutro, ordineMerceSu, "MERCE_DECRESCENTE");
             completati();
             nonCompletati();
             ordinaDecrescente = false;
         } else {
-            ordinaPerMerceCrescente();
+            setDati(ordineDataNeutro, ordineMerceGiu, "MERCE_CRESCENTE");
             completati();
             nonCompletati();
             ordinaDecrescente = true;
@@ -339,15 +303,23 @@ function alternareOrdineMerce() {
 function alternareOrdineData() {
     $("#headData").click(function() {
         if (ordinaDecrescente) {
-            ordinaPerDataDecrescente();
+            setDati(ordineDataSu, ordineMerceNeutro, "DATA_DECRESCENTE");
             completati();
             nonCompletati();
             ordinaDecrescente = false;
         } else {
-            ordinaPerDataCrescente();
+            setDati(ordineDataGiu, ordineMerceNeutro, "DATA_CRESCENTE");
             completati();
             nonCompletati();
             ordinaDecrescente = true;
         }
     });
+}
+
+function setDati(datiData, datiMerce, datiOrdina) {
+    $("#headData").html(datiData);
+    $("#headMerce").html(datiMerce);
+    headerTabellaData = datiData;
+    headerTabellaMerce = datiMerce;
+    tipoDiOrdinamento = datiOrdina;
 }
