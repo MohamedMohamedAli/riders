@@ -60,7 +60,6 @@ $("#home").click(function() {
 function aggiornaTabelle() {
     setTimeout(function() {
         if (!stopAggiornamento) {
-            console.log("aggiorna");
             completati();
             nonCompletati();
             aggiornaTabelle();
@@ -70,34 +69,14 @@ function aggiornaTabelle() {
 
 //COSTRUZIONE TABELLE{
 function tabellaCompletati() {
-    console.log("tabella completati");
-    var head = headTabellaCompletati();
+    var head = headTabellaCompletatiHTML();
     $("#tabellaCompletati").append(head);
-    alternareOrdineData();
-    alternareOrdineMerce();
-    console.log("tipo di ordinamento: " + tipoDiOrdinamento);
-    switch (tipoDiOrdinamento) {
-        case "DATA_CRESCENTE":
-            console.log("case: DATA_CRESCENTE");
-            ordinaPerData(crescente);
-            break;
-        case "DATA_DECRESCENTE":
-            console.log("case: DATA_DECRESCENTE");
-            ordinaPerData(decrescente);
-            break;
-        case "MERCE_CRESCENTE":
-            console.log("case: MERCE_CRESCENTE");
-            ordinaPerMerce(crescente);
-            break;
-        case "MERCE_DECRESCENTE":
-            console.log("case: MERCE_DECRESCENTE");
-            ordinaPerMerce(decrescente);
-    }
+    ordinaTabella();
     completi.forEach(function(element, i) {
         if ((indexPartenzaTabella + i) >= completi.length || i >= elementiMostrati) {
             return false;
         }
-        var riga = bodyTabellaCompletati(indexPartenzaTabella + i);
+        var riga = bodyTabellaHTML(completi, indexPartenzaTabella + i);
         $("#tabellaCompletati").append(riga);
     });
 
@@ -106,14 +85,14 @@ function tabellaCompletati() {
 
 function tabellaNonCompletati() {
     incompleti.forEach(function(element, i) {
-        var riga = bodyTabellaNonCompletati(i);
+        var riga = bodyTabellaHTML(incompleti, i);
         $("#tabellaNonCompletati").append(riga);
     });
     mettiInRide();
 }
 
 //COSTRUZIONE TABELLE -> HTML{
-function headTabellaCompletati() {
+function headTabellaCompletatiHTML() {
     var head = "<tr style=\"background-color:rgba(0, 0, 0, 0.200)\">";
     head += "<th>ID</th>";
     head += "<th id=\"headMerce\">" + headerTabellaMerce + "</th>";
@@ -124,19 +103,24 @@ function headTabellaCompletati() {
     return head;
 }
 
-function bodyTabellaCompletati(i) {
+function bodyTabellaHTML(list, i) {
     var riga = "<tr";
-    if (i % 2 != 0) {
-        riga += (" style=\"background-color:rgb(51, 172, 51)\"");
-    }
+    riga += alternaColoreRiga(i);
     riga += ">";
-    riga += ("<td>" + completi[i]["_id"] + "</td>");
-    riga += ("<td>" + completi[i]["merce"] + "</td>");
-    if (completi[i]["status"] == "CONSEGNATO") {
+    riga += ("<td>" + list[i]["_id"] + "</td>");
+    riga += ("<td>" + list[i]["merce"] + "</td>");
+    //3° colonna tabella non completati
+    if (list[i]["status"] == "CREATED") {
+        riga += ("<td> <button class=\"btn btn-success\" style=\"color:black\" id=\"" + list[i]["_id"] + "\"><b>RIDE</b></button> </td>");
+    }
+    //3°,4°,5° colonna tabella completati [CONSEGNATO]
+    if (list[i]["status"] == "CONSEGNATO") {
         riga += ("<td><b>OK</b></td>");
         riga += quartaColonna(i);
-        riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + moment(completi[i]["endDate"]).format('H:mm:ss-MMMDD') + "]</td>");
-    } else {
+        riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + moment(list[i]["endDate"]).format('H:mm:ss-MMMDD') + "]</td>");
+    }
+    //3°,4°,5° colonna tabella completati [CONSEGNA]
+    if (list[i]["status"] == "CONSEGNA") {
         riga += ("<td><b>Riding</b></td>");
         riga += quartaColonna(i);
         riga += ("<td><img src=\"css/mygif/loading.gif\" /></td>");
@@ -145,27 +129,20 @@ function bodyTabellaCompletati(i) {
     return riga;
 }
 
-function quartaColonna(i) {
-    return "<td style=\"color:rgb(126, 0, 0)\">[" + moment(completi[i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>";
+function alternaColoreRiga(i) {
+    if (i % 2 == 0) {
+        return (" style=\"background-color:rgba(0, 0, 0, 0.050)\"");
+    }
+    return "";
 }
 
-function bodyTabellaNonCompletati(i) {
-    var riga = "<tr";
-    if (i % 2 != 0) {
-        riga += (" style=\"background-color:rgb(255, 199, 59);\"");
-    }
-    riga += ">";
-    riga += ("<td>" + incompleti[i]["_id"] + "</td>");
-    riga += ("<td>" + incompleti[i]["merce"] + "</td>");
-    riga += ("<td> <button class=\"btn btn-success\" style=\"color:black\" id=\"" + incompleti[i]["_id"] + "\"><b>RIDE</b></button> </td>");
-    riga += ("</tr>");
-    return riga;
+function quartaColonna(i) {
+    return "<td style=\"color:rgb(126, 0, 0)\">[" + moment(completi[i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>";
 }
 //}}
 
 //CARICA DATI PER LE TABELLE {
 function completati() {
-    console.log("entro completati");
     $.ajax({
         url: " http://212.237.32.76:3002/status",
         type: "GET",
@@ -231,7 +208,7 @@ function quantitaElementiMostrati() {
 }
 //SELEZIONA PAGINA DA MOSTRARE
 function impaginazione() {
-    $("#campoImpaginazione").html('<ul class="pagination" id="pagination" style="display: flex; justify-content: center;"></ul>');
+    $("#campoImpaginazione").html('<ul class="pagination pos-pag" id="pagination" ></ul>');
     $(function() {
         $('#pagination').twbsPagination({
             totalPages: numeroPagine,
@@ -270,12 +247,10 @@ function mettiInRide() {
 
 //ORDINAMENTO TABELLA
 function ordinaPerData(i) {
-    console.log("Data Crescente");
     completi.sort(function(a, b) { return (moment(a.startDate) - moment(b.startDate)) * i });
 }
 
 function ordinaPerMerce(i) {
-    console.log("Merce Crescente");
     completi.sort(function(a, b) {
         if (b.merce[0] > a.merce[0]) {
             return -1 * i;
@@ -314,6 +289,24 @@ function alternareOrdineData() {
             ordinaDecrescente = true;
         }
     });
+}
+
+function ordinaTabella() {
+    switch (tipoDiOrdinamento) {
+        case "DATA_CRESCENTE":
+            ordinaPerData(crescente);
+            break;
+        case "DATA_DECRESCENTE":
+            ordinaPerData(decrescente);
+            break;
+        case "MERCE_CRESCENTE":
+            ordinaPerMerce(crescente);
+            break;
+        case "MERCE_DECRESCENTE":
+            ordinaPerMerce(decrescente);
+    }
+    alternareOrdineData();
+    alternareOrdineMerce();
 }
 
 function setDati(datiData, datiMerce, datiOrdina) {
