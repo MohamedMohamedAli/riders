@@ -74,3 +74,28 @@
     justify-content: center;
     color: rgba(0, 0, 0, 0.089);
 }
+
+.bgDark {
+    background-color: rgb(44, 44, 44)";
+
+}
+
+.headColor {
+    background-color: rgba(0, 0, 0, 0.200);
+}
+
+.rowColor {
+    background-color: rgba(0, 0, 0, 0.050);
+}
+
+.color-dateS {
+    color: rgb(126, 0, 0);
+}
+
+.color-dateE {
+    color: rgb(2, 0, 126);
+}
+
+.color-btnRide {
+    color: black;
+}

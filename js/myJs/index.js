@@ -93,7 +93,7 @@ function tabellaNonCompletati() {
 
 //COSTRUZIONE TABELLE -> HTML{
 function headTabellaCompletatiHTML() {
-    var head = "<tr style=\"background-color:rgba(0, 0, 0, 0.200)\">";
+    var head = "<tr class=\"head-color\">";
     head += "<th>ID</th>";
     head += "<th id=\"headMerce\">" + headerTabellaMerce + "</th>";
     head += "<th>STATO</th>";
@@ -111,13 +111,13 @@ function bodyTabellaHTML(list, i) {
     riga += ("<td>" + list[i]["merce"] + "</td>");
     //3° colonna tabella non completati
     if (list[i]["status"] == "CREATED") {
-        riga += ("<td> <button class=\"btn btn-success\" style=\"color:black\" id=\"" + list[i]["_id"] + "\"><b>RIDE</b></button> </td>");
+        riga += ("<td> <button class=\"btn btn-success color-btnRide\" id=\"" + list[i]["_id"] + "\"><b>RIDE</b></button> </td>");
     }
     //3°,4°,5° colonna tabella completati [CONSEGNATO]
     if (list[i]["status"] == "CONSEGNATO") {
         riga += ("<td><b>OK</b></td>");
         riga += quartaColonna(i);
-        riga += ("<td style=\"color:rgb(2, 0, 126)\">[" + moment(list[i]["endDate"]).format('H:mm:ss-MMMDD') + "]</td>");
+        riga += ("<td class=\"color-dateE\">[" + moment(list[i]["endDate"]).format('H:mm:ss-MMMDD') + "]</td>");
     }
     //3°,4°,5° colonna tabella completati [CONSEGNA]
     if (list[i]["status"] == "CONSEGNA") {
@@ -131,13 +131,13 @@ function bodyTabellaHTML(list, i) {
 
 function alternaColoreRiga(i) {
     if (i % 2 == 0) {
-        return (" style=\"background-color:rgba(0, 0, 0, 0.050)\"");
+        return (" class=\"row-color\"");
     }
     return "";
 }
 
 function quartaColonna(i) {
-    return "<td style=\"color:rgb(126, 0, 0)\">[" + moment(completi[i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>";
+    return "<td class=\"color-dateS\">[" + moment(completi[i]["startDate"]).format('H:mm:ss-MMMDD') + "]</td>";
 }
 //}}
 
